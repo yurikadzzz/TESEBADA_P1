@@ -60,10 +60,7 @@ public class UpdatePrices extends JFrame {
 
         try {
             conn = DatabaseConnection.connect();
-            // Set auto-commit to false to manage transactions manually
             conn.setAutoCommit(false);
-
-            // Set isolation level to SERIALIZABLE to ensure full locking and prevent concurrent access
             conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
             stmt = conn.prepareStatement(query);

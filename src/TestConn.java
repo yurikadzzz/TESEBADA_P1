@@ -3,7 +3,7 @@ import java.sql.*;
 public class TestConn {
 
     public static void main(String[] args) {
-        String URL = "jdbc:sqlserver://DESKTOP-G5OF0J3;Database=Empresa;IntegratedSecurity=True;trustServerCertificate=True";
+        String URL = "jdbc:sqlserver://25.3.89.213;Database=Empresa;IntegratedSecurity=True;trustServerCertificate=True";
         String user = "root";
         String pw = "root";
 
