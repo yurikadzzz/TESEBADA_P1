@@ -54,18 +54,53 @@ public class UpdatePrices extends JFrame {
                 "SELECT FOLIO FROM TICKETSH WHERE " + criterionType + " = ?) " +
                 "AND TICKET IN (" +
                 "SELECT TICKET FROM TICKETSD GROUP BY TICKET HAVING COUNT(DISTINCT IDPRODUCTO) >= 3)";
-        
-        try (Connection conn = DatabaseConnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try {
+            conn = DatabaseConnection.connect();
+            // Set auto-commit to false to manage transactions manually
+            conn.setAutoCommit(false);
+
+            // Set isolation level to SERIALIZABLE to ensure full locking and prevent concurrent access
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            stmt = conn.prepareStatement(query);
             stmt.setInt(1, criterionValue);
+
             int rowsAffected = stmt.executeUpdate();
+
+            // Commit the transaction after successful execution
+            conn.commit();
+
             JOptionPane.showMessageDialog(null, "Precios actualizados para " + rowsAffected + " productos.");
+
         } catch (SQLException e) {
+            try {
+                // Roll back the transaction in case of an error
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException rollbackException) {
+                rollbackException.printStackTrace();
+            }
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error al actualizar los precios.");
+
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+                if (conn != null) {
+                    conn.setAutoCommit(true); // Reset auto-commit mode
+                    conn.close();
+                }
+            } catch (SQLException closeException) {
+                closeException.printStackTrace();
+            }
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
